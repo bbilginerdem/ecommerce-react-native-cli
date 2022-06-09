@@ -1,44 +1,25 @@
-import axios from 'axios';
-import React, {useState, useEffect} from 'react';
-import {View, FlatList, ActivityIndicator, Text} from 'react-native';
+import React from 'react';
+import {FlatList} from 'react-native';
 import Config from 'react-native-config';
 
+import Loading from '../../components/Loading/Loading';
+import Error from '../../components/Error/Error';
+import useFetch from '../../hooks/useFetch';
 import ProductCard from '../../components/ProductCard';
 
 const Products = () => {
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const {data: productData} = await axios.get(Config.API_URL);
-      setData(productData);
-      setLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-    }
-  };
+  const {error, loading, data} = useFetch(Config.API_URL);
 
   const renderProduct = ({item}) => <ProductCard product={item} />;
 
   if (loading) {
-    return <ActivityIndicator size="large" />;
+    return <Loading />;
   }
 
   if (error) {
-    return <Text>{error}</Text>;
+    return <Error />;
   }
 
-  return (
-    <View>
-      <FlatList data={data} renderItem={renderProduct} />
-    </View>
-  );
+  return <FlatList data={data} renderItem={renderProduct} />;
 };
 export default Products;
